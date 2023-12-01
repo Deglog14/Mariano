@@ -6,9 +6,12 @@ public class PlayerMovement : MonoBehaviour
 {
     //para llamar a la caja que compone el cuerpo
     private Rigidbody2D rb;
+    private BoxCollider2D coll;
     //para llamar a la Animación
     private Animator anim;
     private SpriteRenderer sprite;
+
+    [SerializeField]private LayerMask jumpableTerreno;
 
     private float dirX=0f;
     //SerializeField sirve para mostrar en unity  un cuadro con los valores pa cambiar rapido
@@ -16,12 +19,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]private float jumpforce = 14f;
 
     private enum MovementState {idle, running, jumping, falling }
-    private MovementState state
 
     // Start is called before the first frame update
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        coll = GetComponent<BoxCollider2D>();
         sprite =GetComponent<SpriteRenderer>();
         anim =GetComponent<Animator>();
     }
@@ -33,31 +36,49 @@ public class PlayerMovement : MonoBehaviour
         rb.velocity =new Vector2 (dirX * moveSpeed, rb.velocity.y);
 
 
-       if(Input.GetButtonDown("Jump")) 
-       {
-        rb.velocity =new Vector2(rb.velocity.x, jumpforce);
-       }
+        if(Input.GetButtonDown("Jump") && IsGrounded()) 
+        {
+            rb.velocity =new Vector2(rb.velocity.x, jumpforce);
+        }
         
         UpdateAnimationUpdate();
     }
 
     private void UpdateAnimationUpdate()
     {
-        //Este if es para saber cuando tiene que cambiar el bull de Run
-       if(dirX > 0f)
-       {
-            anim.SetBool("Run", true);
-            //Cambiamos donde se renderiza el sprite la direcion
-            sprite.flipX = false ;
-       }
-       else if(dirX < 0f)
-       {
-            anim.SetBool("Run", true);
+        MovementState state; // Aquí declaramos una variable 'state' del tipo MovementState
+
+        // Este bloque de código determina el estado del movimiento basado en las condiciones
+        if (dirX > 0f)
+        {
+            state = MovementState.running;
+            sprite.flipX = false;
+        }
+        else if (dirX < 0f)
+        {
+            state = MovementState.running;
             sprite.flipX = true;
-       }
-       else
-       {
-            anim.SetBool("Run", false);
-       }
+        }
+        else
+        {
+            state = MovementState.idle;
+        }
+
+        if (rb.velocity.y > 0.1f)
+        {
+            state = MovementState.jumping;
+        }
+        else if (rb.velocity.y < -0.1f)
+        {
+            state = MovementState.falling;
+        }
+
+        anim.SetInteger("state", (int)state); // Asignamos el estado al parámetro "state" en el Animator
+    }
+
+    private bool IsGrounded()
+    {
+        //con esto crear una caja igual que la del colider del jugador
+        return Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.down, .1f, jumpableTerreno);
     }
 }
