@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Platano
   - Terreno
+  - Trampa
   layers:
   - Default
   - TransparentFX
