@@ -7,6 +7,7 @@ TagManager:
   - Platano
   - Terreno
   - Trampa
+  - Jugador
   layers:
   - Default
   - TransparentFX

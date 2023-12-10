@@ -9,10 +9,13 @@ public class ItemCollector : MonoBehaviour
 
     [SerializeField]private Text Platanotxt;
 
+    [SerializeField] private AudioSource collectionSoundEffect;
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.gameObject.CompareTag("Platano"))
         {
+            collectionSoundEffect.Play();
             Destroy(collision.gameObject);
             platanos++;
             Platanotxt.text = "Platanos:" + platanos;
